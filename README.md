@@ -22,7 +22,7 @@ Mostly borrowed from [linuxserver/docker-swag/blob/master/root/defaults/ssl.conf
 The [GPL-3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html) applies to this repositroy. I've made a number of changes from the original source code. Some are substantial, some are minor. Regardless, the sources I started working with are primarily [linuxserver/docker-swag](https://github.com/linuxserver/docker-swag) and [linuxserver/reverse-proxy-confs](https://github.com/linuxserver/reverse-proxy-confs), both of which are also licensed under GPL-3.0.
 
 ```
-nginx/fail2ban configuration files
+github.com/xnaas/nginx
 Copyright (C) 2021  xnaas
 
 This program is free software: you can redistribute it and/or modify
