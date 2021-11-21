@@ -1,5 +1,5 @@
-# nginx & fail2ban
-These are some nginx and fail2ban files related to my personal nginx setup.
+# nginx
+These are some nginx files related to my personal nginx setup.
 
 Additional details:
 
@@ -10,10 +10,19 @@ See [xnaas/docker-compose.yml](https://github.com/xnaas/docker-compose.yml/) for
 info on overall setup.
 
 ## [nginx](https://github.com/xnaas/nginx/blob/master/nginx/)
-Click above for detailed information on the nginx part of my setup.
 
-## [fail2ban](https://github.com/xnaas/nginx/blob/master/fail2ban/)
-Click above for detailed information on the fail2ban part of my setup.
+### [errors.conf](https://github.com/xnaas/nginx/blob/master/nginx/errors.conf)
+Included in `nginx.conf` for [http.cat](https://http.cat) error pages/images.
+
+### [nginx.conf](https://github.com/xnaas/nginx/blob/master/nginx/nginx.conf)
+This file contains the majority of my nginx config. `proxy.conf` and `ssl.conf`
+exist to be `include`d in `nginx.conf` just to keep the line count down and readability up.
+
+### [proxy.conf](https://github.com/xnaas/nginx/blob/master/nginx/proxy.conf)
+Mostly borrowed from [linuxserver/docker-swag/blob/master/root/defaults/proxy.conf](https://github.com/linuxserver/docker-swag/blob/master/root/defaults/proxy.conf).
+
+### [ssl.conf](https://github.com/xnaas/nginx/blob/master/nginx/ssl.conf)
+Mostly borrowed from [linuxserver/docker-swag/blob/master/root/defaults/ssl.conf](https://github.com/linuxserver/docker-swag/blob/master/root/defaults/ssl.conf).
 
 ## [LICENSE](https://github.com/xnaas/nginx/blob/master/LICENSE.md)
 The [GPL-3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html) applies to this

@@ -1,0 +1,69 @@
+## Version 2020/05/10 - Changelog: https://github.com/linuxserver/docker-swag/commits/master/root/defaults/jail.local
+# This is the custom version of the jail.conf for fail2ban
+# Feel free to modify this and add additional filters
+# Then you can drop the new filter conf files into the fail2ban-filters
+# folder and restart the container
+
+[DEFAULT]
+banaction = cloudflare-ban
+
+# "bantime" is the number of seconds that a host is banned.
+bantime  = 600
+
+# A host is banned if it has generated "maxretry" during the last "findtime"
+# seconds.
+findtime  = 600
+
+# "maxretry" is the number of failures before a host get banned.
+maxretry = 5
+
+# Ignore Home IP and LAN
+ignoreip = 172.16.0.0/12 192.168.0.0/16
+
+
+[ssh]
+enabled = false
+
+
+[nginx-http-auth]
+enabled  = true
+port     = http,https
+filter   = nginx-http-auth
+action   = cloudflare-ban[name=%(__name__)s]
+logpath  = /config/log/nginx/error.log
+bantime  = 86400
+findtime = 15m
+maxretry = 5
+
+
+[nginx-post-auth]
+enabled  = true
+port     = http,https
+filter   = nginx-post-auth
+action   = cloudflare-ban[name=%(__name__)s]
+logpath  = /config/log/nginx/access.log
+bantime  = 86400
+findtime = 15m
+maxretry = 5
+
+
+[nginx-badbots]
+enabled  = false
+port     = http,https
+filter   = nginx-badbots
+logpath  = /config/log/nginx/access.log
+maxretry = 2
+
+
+[nginx-botsearch]
+enabled  = false
+port     = http,https
+filter   = nginx-botsearch
+logpath  = /config/log/nginx/access.log
+
+
+[nginx-deny]
+enabled  = false
+port     = http,https
+filter   = nginx-deny
+logpath  = /config/log/nginx/error.log

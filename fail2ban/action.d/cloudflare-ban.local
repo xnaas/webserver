@@ -1,0 +1,47 @@
+[Definition]
+# Option:  actionstart
+# Notes.:  command executed once at the start of Fail2Ban.
+# Values:  CMD
+#
+actionstart =
+
+# Option:  actionstop
+# Notes.:  command executed once at the end of Fail2Ban
+# Values:  CMD
+#
+actionstop =
+
+# Option:  actioncheck
+# Notes.:  command executed once before each actionban command
+# Values:  CMD
+#
+actioncheck =
+
+# Option:  actionban
+# Notes.:  command executed when banning an IP. Take care that the
+#          command is executed with Fail2Ban user rights.
+# Tags:      IP address
+#            number of failures
+#            unix timestamp of the ban time
+# Values:  CMD
+actionban = TIMESTAMP=`date --date=@<time> +%%F@%%R`
+  curl -s -o /dev/null -X POST -H 'Authorization: Bearer <cftoken>' \
+  -H 'Content-Type: application/json' \
+  -d '{"mode":"block","configuration":{"target":"ip","value":"<ip>"},"notes":"[<name>] '$TIMESTAMP'"}' \
+  https://api.cloudflare.com/client/v4/user/firewall/access_rules/rules
+
+# Option:  actionunban
+# Notes.:  command executed when unbanning an IP. Take care that the
+#          command is executed with Fail2Ban user rights.
+# Tags:      IP address
+#            number of failures
+#            unix timestamp of the ban time
+# Values:  CMD
+#
+actionunban = curl -s -o /dev/null -X DELETE -H 'Authorization: Bearer <cftoken>' \
+          https://api.cloudflare.com/client/v4/user/firewall/access_rules/rules/$(curl -s -X GET -H 'Authorization: Bearer <cftoken>' \
+          'https://api.cloudflare.com/client/v4/user/firewall/access_rules/rules?mode=block&configuration_target=ip&configuration_value=<ip>&page=1&per_page=1' \
+          | tr -d '\n' | cut -d'"' -f6)
+
+[Init]
+cftoken = RELEVANT_CLOUDFLARE_TOKEN

@@ -1,0 +1,4 @@
+[Definition]
+failregex = ^<HOST>.+POST.+(401|403)
+
+ignoreregex = ^.+(plex\.xnaas\.info|app\.plex\.tv)
