@@ -1,21 +1,16 @@
-## Version 2020/05/10 - Changelog: https://github.com/linuxserver/docker-swag/commits/master/root/defaults/jail.local
-# This is the custom version of the jail.conf for fail2ban
-# Feel free to modify this and add additional filters
-# Then you can drop the new filter conf files into the fail2ban-filters
-# folder and restart the container
-
 [DEFAULT]
-banaction = cloudflare-ban
+# defult banaction if none is specified
+banaction = cloudflare-ban[name=%(__name__)s]
 
 # "bantime" is the number of seconds that a host is banned.
-bantime  = 600
+bantime = 86400
 
 # A host is banned if it has generated "maxretry" during the last "findtime"
 # seconds.
-findtime  = 600
+findtime = 15m
 
 # "maxretry" is the number of failures before a host get banned.
-maxretry = 5
+maxretry = 3
 
 # Ignore Home IP and LAN
 ignoreip = 172.16.0.0/12 192.168.0.0/16
@@ -33,7 +28,7 @@ action   = cloudflare-ban[name=%(__name__)s]
 logpath  = /config/log/nginx/error.log
 bantime  = 86400
 findtime = 15m
-maxretry = 5
+maxretry = 3
 
 
 [nginx-post-auth]
@@ -44,7 +39,18 @@ action   = cloudflare-ban[name=%(__name__)s]
 logpath  = /config/log/nginx/access.log
 bantime  = 86400
 findtime = 15m
-maxretry = 5
+maxretry = 3
+
+
+[log4j]
+enabled  = true
+port     = http,https
+filter   = log4j
+action   = cloudflare-ban[name=%(__name__)s]
+logpath  = /config/log/nginx/access.log
+bantime  = 1000000
+findtime = 15m
+maxretry = 1
 
 
 [nginx-badbots]
