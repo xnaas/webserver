@@ -44,4 +44,4 @@ actionunban = curl -s -o /dev/null -X DELETE -H 'Authorization: Bearer <cftoken>
           | tr -d '\n' | cut -d'"' -f6)
 
 [Init]
-cftoken = RELEVANT_CLOUDFLARE_TOKEN
+cftoken = <token>

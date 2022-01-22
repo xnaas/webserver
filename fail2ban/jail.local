@@ -48,7 +48,7 @@ port     = http,https
 filter   = log4j
 action   = cloudflare-ban[name=%(__name__)s]
 logpath  = /config/log/nginx/access.log
-bantime  = 1000000
+bantime  = -1
 findtime = 15m
 maxretry = 1
 

@@ -1,4 +1,7 @@
 [Definition]
 failregex = ^<HOST>.+POST.+(401|403)
 
-ignoreregex = ^.+(plex\.xnaas\.info|app\.plex\.tv)
+# ignoreregex = ^.+(plex\.xnaas\.info|app\.plex\.tv)
+# ignoreregex = ^<HOST>\s-\s-\s\[.+\]\s\"POST\s\/.+HTTP\/1.1\"\s(401|403)\s\d+\s\"https://app.plex.tv\/\"\s.+
+
+# datepattern = %%d/%%b/%%Y:%%H:%%M:%%S \+%%f
