@@ -11,9 +11,10 @@ webserver will send bans to Cloudflare and protect *all* of your sites/domains.
 
 <!-- TODO: Detailed explanation of Cloudflare side of this. -->
 
+### [filter.d/caddy-auth.local](https://github.com/xnaas/nginx/blob/master/fail2ban/filter.d/caddy-auth.local)
+This filter checks for any HTTP 401 or 403 errors that aren't from Plex.
 
 ### [jail.local]()
-
 This is only a snippet of my full fail2ban setup on [my server](https://pcpartpicker.com/user/xnaas/saved/kQ86Mp)
 but it gets the point across.
 
