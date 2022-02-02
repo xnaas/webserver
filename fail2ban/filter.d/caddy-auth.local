@@ -1,0 +1,3 @@
+[Definition]
+failregex = ^.*\"Cf-Connecting-Ip\":\[\"<HOST>\"\].*\"status\"\:(401|403).*$
+ignoreregex = ^.*\"host\":\"plex\.xnaas\.info\".*$
