@@ -1,0 +1,15 @@
+tunnel: 6a4c9466-fafa-4449-8db4-f962327aba18
+credentials-file: /etc/cloudflared/6a4c9466-fafa-4449-8db4-f962327aba18.json
+
+ingress:
+  - hostname: xnaas.info
+    service: https://192.168.1.101:443
+    originRequest:
+      connectTimeout: 10s
+      noTLSVerify: true
+  - hostname: "*.xnaas.info"
+    service: https://192.168.1.101:443
+    originRequest:
+      connectTimeout: 10s
+      noTLSVerify: true
+  - service: http_status:404

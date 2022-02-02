@@ -1,0 +1,312 @@
+###################
+# Global Settings #
+###################
+{
+	default_sni xnaas.info
+}
+
+############
+# Snippets #
+############
+(proxyheaders) {
+	flush_interval -1
+	header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+	header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+	header_up X-Forwarded-Host {hostport}
+}
+(main) {
+	tls {$ACMEEMAIL} {
+		ca https://acme-v02.api.letsencrypt.org/directory
+		dns cloudflare {$CLOUDFLARE_API_TOKEN}
+		resolvers 1.0.0.1
+	}
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		Content-Security-Policy "upgrade-insecure-requests"
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+	log {
+		output file /data/logs/access.log {
+			roll_size 100MiB
+			roll_keep 10
+			roll_keep_for 168h
+		}
+		format json
+		level ERROR
+	}
+}
+(asak) {
+	basicauth {
+		{$ASAK}
+	}
+}
+(errors) {
+	handle_errors {
+		rewrite * /{http.error.status_code}
+		reverse_proxy https://http.cat {
+			header_up Host http.cat
+		}
+	}
+}
+
+##############
+# xnaas.info #
+##############
+https://xnaas.info {
+	import main
+	import errors
+	root * /www/websites/xnaas.info
+	file_server
+	redir /tmp /tmp/
+	handle_path /tmp/* {
+		root * /www/tmp
+		file_server
+	}
+	handle_path /pgp* {
+		redir https://github.com/xnaas/pgp 302
+	}
+}
+
+https://home.xnaas.info {
+	import main
+	reverse_proxy https://192.168.1.150:5001 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+		import proxyheaders
+	}
+}
+
+https://irc.xnaas.info {
+	import main
+	reverse_proxy http://thelounge:9000 {
+		import proxyheaders
+	}
+}
+
+https://kb.xnaas.info {
+	import main
+	root * /www/websites/kb.xnaas.info/website
+	file_server
+	# todo: rewrites like nginx from wiki move
+	# route { rewrite ^/en/public(.*)$ $1 permanent; }
+}
+
+https://live.xnaas.info {
+	import main
+	reverse_proxy http://owncast:8080 {
+		import proxyheaders
+	}
+}
+
+https://music.xnaas.info {
+	import main
+	reverse_proxy http://music:4533 {
+		import proxyheaders
+	}
+}
+
+https://notes.xnaas.info {
+	import main
+	reverse_proxy http://joplin:22300 {
+		import proxyheaders
+	}
+}
+
+https://p.xnaas.info {
+	import main
+	import errors
+	root * /www/websites/p.xnaas.info
+	redir /favicon.ico https://xnaas.info/favicon.ico
+	file_server browse
+}
+
+https://plex.xnaas.info {
+	import main
+	reverse_proxy http://192.168.1.101:32400 {
+		import proxyheaders
+	}
+}
+
+https://plexpy.xnaas.info {
+	import main
+	reverse_proxy http://plexpy:8181 {
+		import proxyheaders
+	}
+}
+
+https://request.xnaas.info {
+	import main
+	reverse_proxy http://overseerr:5055 {
+		import proxyheaders
+	}
+}
+
+https://rss.xnaas.info {
+	import main
+	reverse_proxy http://rss:80 {
+		import proxyheaders
+	}
+}
+
+https://tesla.xnaas.info {
+	import main
+	reverse_proxy http://teslamate:4000 {
+		import proxyheaders
+	}
+}
+
+https://teslag.xnaas.info {
+	import main
+	reverse_proxy http://teslamate-grafana:3000 {
+		import proxyheaders
+	}
+}
+
+https://www.xnaas.info,
+https://www.actionsack.com {
+	import main
+	redir https://dropwww.com/why permanent
+}
+
+# https://ツ.xnaas.info
+https://xn--bdk.xnaas.info {
+	import main
+	import errors
+	root * /www/websites/ツ.xnaas.info
+	file_server
+}
+
+# https://🤔.xnaas.info
+https://xn--wp9h.xnaas.info {
+	import main
+	import errors
+	root * /www/websites/🤔.xnaas.info
+	file_server
+}
+
+# https://🤪.xnaas.info
+https://xn--jq9h.xnaas.info {
+	import main
+	import errors
+	root * /www/websites/🤪.xnaas.info
+	file_server
+}
+
+# https://🤫.xnaas.info
+https://xn--kq9h.xnaas.info {
+	import main
+	import errors
+	root * /www/websites/🤫.xnaas.info
+	file_server browse
+}
+
+##################
+# actionsack.com #
+##################
+https://actionsack.com {
+	import main
+	import errors
+	root * /www/websites/actionsack.com/website
+	file_server
+	redir /tmp /tmp/
+	handle_path /tmp/* {
+		root * /www/websites/actionsack.com/tmp
+		file_server browse
+	}
+}
+
+https://bib.actionsack.com {
+	import main
+	reverse_proxy http://bibliogram:10407 {
+		import proxyheaders
+	}
+}
+
+# This one exists just to get certs
+# for IRC and Mumble, basically.
+https://chat.actionsack.com {
+	import main
+	import errors
+	root * /www/websites/actionsack.com/website
+	file_server
+}
+
+# todo: rate-limiting /Games
+https://dl.actionsack.com {
+	import main
+	import errors
+	root * /www/download
+	redir /favicon.ico https://actionsack.com/favicon.ico
+	file_server browse {
+		hide .*
+	}
+}
+
+https://i.actionsack.com {
+	import main
+	reverse_proxy http://rimgu:8080 {
+		import proxyheaders
+	}
+}
+
+https://nitter.actionsack.com {
+	import main
+	reverse_proxy http://nitter:8080 {
+		import proxyheaders
+	}
+}
+
+https://ott.actionsack.com {
+	import main
+	reverse_proxy http://ott:8080 {
+		import proxyheaders
+	}
+}
+
+https://p.actionsack.com {
+	import main
+	import errors
+	root * /www/websites/p.actionsack.com
+	redir /favicon.ico https://actionsack.com/favicon.ico
+	file_server browse
+}
+
+https://rss.actionsack.com {
+	import main
+	import asak
+	reverse_proxy http://rss-bridge:80 {
+		import proxyheaders
+	}
+}
+
+https://send.actionsack.com {
+	import main
+	reverse_proxy http://send:1234 {
+		import proxyheaders
+	}
+}
+
+https://srsbznz.actionsack.com {
+	import main
+	reverse_proxy http://meme-wiki:80 {
+		import proxyheaders
+	}
+}
+
+https://webchat.actionsack.com {
+	import main
+	reverse_proxy http://thelounge-public:9000 {
+		import proxyheaders
+	}
+}
+
+https://ytdl.actionsack.com {
+	import main
+	reverse_proxy http://youtubedl:8080 {
+		import proxyheaders
+	}
+}
