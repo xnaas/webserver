@@ -34,7 +34,15 @@
 			roll_keep 10
 			roll_keep_for 168h
 		}
-		format json
+		format filter {
+			wrap json
+			fields {
+				common_log delete
+				request>tls delete
+				request>remote_addr delete
+				headers>If-Modified-Since delete
+			}
+		}
 		level ERROR
 	}
 }
