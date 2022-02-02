@@ -99,8 +99,7 @@ https://kb.xnaas.info {
 	import main
 	root * /www/websites/kb.xnaas.info/website
 	file_server
-	# todo: rewrites like nginx from wiki move
-	# route { rewrite ^/en/public(.*)$ $1 permanent; }
+	uri strip_prefix /en/public # uri strip for leaving wikijs
 }
 
 https://live.xnaas.info {
