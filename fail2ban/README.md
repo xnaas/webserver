@@ -1,3 +1,8 @@
+# **NOTICE**
+
+This folder isn't currently relevant. This has not been updated for the move
+from nginx back to Caddy.
+
 # fail2ban
 These are some fail2ban files related to my personal nginx setup.
 
