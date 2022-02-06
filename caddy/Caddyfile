@@ -11,8 +11,6 @@
 (proxyheaders) {
 	flush_interval -1
 	header_up X-Real-IP {http.request.header.CF-Connecting-IP}
-	header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
-	header_up X-Forwarded-Host {hostport}
 }
 (main) {
 	tls {$ACMEEMAIL} {
@@ -39,8 +37,6 @@
 			fields {
 				common_log delete
 				request>tls delete
-				request>remote_addr delete
-				headers>If-Modified-Since delete
 			}
 		}
 		level ERROR
@@ -53,10 +49,7 @@
 }
 (errors) {
 	handle_errors {
-		rewrite * /{http.error.status_code}
-		reverse_proxy https://http.cat {
-			header_up Host http.cat
-		}
+		respond "{http.error.status_code} {http.error.status_text}"
 	}
 }
 
@@ -81,10 +74,10 @@ https://xnaas.info {
 https://home.xnaas.info {
 	import main
 	reverse_proxy https://192.168.1.150:5001 {
+		import proxyheaders
 		transport http {
 			tls_insecure_skip_verify
 		}
-		import proxyheaders
 	}
 }
 
@@ -127,7 +120,6 @@ https://p.xnaas.info {
 	import main
 	import errors
 	root * /www/websites/p.xnaas.info
-	redir /favicon.ico https://xnaas.info/favicon.ico
 	file_server browse
 }
 
@@ -306,7 +298,7 @@ https://srsbznz.actionsack.com {
 
 https://webchat.actionsack.com {
 	import main
-	reverse_proxy http://thelounge-public:9000 {
+	reverse_proxy http://webchat:9000 {
 		import proxyheaders
 	}
 }
