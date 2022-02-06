@@ -168,7 +168,7 @@ https://teslag.xnaas.info {
 https://www.xnaas.info,
 https://www.actionsack.com {
 	import main
-	redir https://dropwww.com/why permanent
+	redir https://dropwww.com/why 301
 }
 
 # https://ツ.xnaas.info
