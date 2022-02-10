@@ -42,12 +42,6 @@
 		level ERROR
 	}
 }
-(idle) {
-	transport http {
-		keepalive 12h
-		keepalive_idle_conns 5
-	}
-}
 (asak) {
 	basicauth {
 		{$ASAK}
@@ -304,7 +298,6 @@ https://webchat.actionsack.com {
 	import main
 	reverse_proxy http://webchat:9000 {
 		import proxyheaders
-		import idle
 	}
 }
 

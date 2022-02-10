@@ -7,12 +7,6 @@ ingress:
     originRequest:
       connectTimeout: 10s
       noTLSVerify: true
-  - hostname: webchat.actionsack.com
-    service: https://192.168.1.101:443
-    originRequest:
-      connectTimeout: 10s
-      noTLSVerify: true
-      keepAliveTimeout: 12h
   - hostname: "*.actionsack.com"
     service: https://192.168.1.101:443
     originRequest:
