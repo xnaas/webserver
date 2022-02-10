@@ -235,9 +235,7 @@ https://bib.actionsack.com {
 # for IRC and Mumble, basically.
 https://chat.actionsack.com {
 	import main
-	import errors
-	root * /www/websites/actionsack.com/website
-	file_server
+	respond "OK"
 }
 
 # todo: rate-limiting /Games
