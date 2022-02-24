@@ -64,10 +64,9 @@ image/vnd.wap.wbmp				wbmp
 image/webp					webp
 image/x-jng					jng
 video/3gpp					3gp 3gpp
-video/mp4					f4p f4v m4v mp4
+video/mp4					f4p f4v m4v mp4 mov
 video/mpeg					mpeg mpg
 video/ogg					ogv
-video/quicktime					mov
 video/webm					webm
 video/x-flv					flv
 video/x-msvideo					avi
