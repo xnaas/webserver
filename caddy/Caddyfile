@@ -41,6 +41,17 @@
 		}
 		level ERROR
 	}
+	respond /robots.txt 200 {
+		body "User-agent: *
+Disallow: /
+
+User-agent: AdsBot-Google
+Disallow: /
+
+User-agent: AdsBot-Google-Mobile
+Disallow: /"
+		close
+	}
 }
 (asak) {
 	basicauth {
