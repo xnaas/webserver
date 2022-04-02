@@ -256,7 +256,7 @@ https://dl.actionsack.com {
 
 https://i.actionsack.com {
 	import main
-	reverse_proxy http://rimgu:8080 {
+	reverse_proxy http://rimgo:3000 {
 		import proxyheaders
 	}
 }
