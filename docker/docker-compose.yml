@@ -1,0 +1,584 @@
+version: "3.8"
+services:
+  #########
+  # caddy #
+  caddy:
+    image: ghcr.io/xnaas/caddy:stable
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - cf
+      - general
+      - irc
+      - owncast
+      - plex
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/mime.types:/etc/mime.types:ro
+      - ./caddy/data:/data
+      - ./caddy/config:/config
+      - /mnt/media/websites:/www/websites:ro
+      - /mnt/media/ShareX/Screenshots/temp:/www/tmp:ro
+      - /mnt/media/public:/www/download:ro
+    env_file:
+      - ./envs/common.env
+      - ./envs/caddy.env
+  # caddy #
+  #########
+
+
+  ###############
+  # cloudflared #
+  cloudflared:
+    image: cloudflare/cloudflared:2022.4.1
+    container_name: cloudflared
+    restart: unless-stopped
+    user: 1000:1000
+    command: ["tunnel", "--no-autoupdate", "--config", "/etc/cloudflared/cf.yaml", "--origincert", "/etc/cloudflared/cf.pem", "run"]
+    networks:
+      - cf
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+  # cloudflared #
+  ###############
+
+
+  ##############
+  # Bibliogram #
+  bibliogram:
+    image: ghcr.io/xnaas/bibliogram:latest
+    container_name: bibliogram
+    restart: unless-stopped
+    expose:
+      - 10407
+    networks:
+      - general
+    volumes:
+      - ./bibliogram/config.js:/config/config.js:ro
+    env_file: ./envs/common.env
+  # Bibliogram #
+  ##############
+
+
+  #############
+  #  fishnet  #
+  fishnet:
+    image: niklasf/fishnet:latest
+    container_name: fishnet
+    restart: unless-stopped
+    env_file:
+      - ./envs/common.env
+      - ./envs/fishnet.env
+  #  fishnet  #
+  #############
+
+
+  ###########
+  #   IRC   #
+  thelounge:
+    image: thelounge/thelounge:4.3.1
+    container_name: thelounge
+    restart: unless-stopped
+    ports:
+      - "59000:9000"
+    networks:
+      - irc
+    volumes:
+      - ./thelounge:/var/opt/thelounge
+    env_file: ./envs/common.env
+  webchat:
+    image: ghcr.io/xnaas/thelounge:latest
+    container_name: webchat
+    restart: unless-stopped
+    expose:
+      - 9000
+    networks:
+      - irc
+    volumes:
+      - ./webchat:/var/opt/thelounge
+    env_file: ./envs/common.env
+  ircd:
+    image: ghcr.io/ergochat/ergo:v2.9.1
+    container_name: ircd
+    restart: unless-stopped
+    ports:
+      - "6697:6697"
+    networks:
+      - irc
+    volumes:
+      - ./ircd:/ircd
+    env_file: ./envs/common.env
+  #    IRC   #
+  ############
+
+
+  ############
+  #  Joplin  #
+  joplin:
+    image: joplin/server:latest
+    container_name: joplin
+    restart: unless-stopped
+    depends_on:
+      joplin-db:
+        condition: service_healthy
+    networks:
+      - general
+      - joplin
+    expose:
+      - 22300
+    env_file:
+      - ./envs/common.env
+      - ./envs/joplin.env
+  joplin-db:
+    image: postgres:13-alpine
+    container_name: joplin-db
+    restart: unless-stopped
+    user: 1000:1000
+    networks:
+      - joplin
+    volumes:
+      - ./joplin:/var/lib/postgresql/data
+    env_file:
+      - ./envs/common.env
+      - ./envs/joplin-db.env
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${JOPLIN_DB_NAME}", "-U", "${JOPLIN_DB_USER}" ]
+      interval: 10s
+      timeout: 45s
+      retries: 10
+  #  Joplin  #
+  ############
+
+
+  ################
+  # Matterbridge #
+  matterbridge:
+    image: ghcr.io/42wim/matterbridge:stable
+    container_name: matterbridge
+    restart: unless-stopped
+    networks:
+      - irc
+    volumes:
+      - ./matterbridge:/etc/matterbridge:ro
+    env_file: ./envs/common.env
+  # Matterbridge #
+  ################
+
+
+  #################
+  # Mumble/Murmur #
+  murmur:
+    image: ghcr.io/xnaas/murmur:latest
+    container_name: murmur
+    restart: unless-stopped
+    ports:
+      - "64738:64738/tcp"
+      - "64738:64738/udp"
+    networks:
+      - irc
+    volumes:
+      - ./mumble:/data
+    env_file: ./envs/common.env
+  # Mumble/Murmur #
+  #################
+
+
+  #############
+  #   Music   #
+  music:
+    image: deluan/navidrome:0.47.5
+    container_name: music
+    restart: unless-stopped
+    user: 1000:1000
+    expose:
+      - 4533
+    networks:
+      - general
+    volumes:
+      - ./music:/data
+      - /mnt/media/music:/music:ro
+    env_file:
+      - ./envs/common.env
+      - ./envs/music.env
+  #   Music   #
+  #############
+
+
+  ############
+  #  Nitter  #
+  nitter:
+    image: zedeus/nitter:latest
+    container_name: nitter
+    restart: unless-stopped
+    depends_on:
+      nitter-redis:
+        condition: service_healthy
+    expose:
+      - 8080
+    networks:
+      - general
+      - nitter
+    volumes:
+      - ./nitter/conf/nitter.conf:/src/nitter.conf:ro
+    env_file: ./envs/common.env
+  nitter-redis:
+    image: redis:alpine
+    container_name: nitter-redis
+    restart: unless-stopped
+    user: 1000:1000
+    networks:
+      - nitter
+    volumes:
+      - ./nitter/data:/data
+    env_file: ./envs/common.env
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 45s
+      retries: 10
+  #  Nitter  #
+  ############
+
+
+  ####################
+  # OpenTogetherTube #
+  ott:
+    image: dyc3/opentogethertube:latest
+    container_name: ott
+    restart: unless-stopped
+    depends_on:
+      ott-redis:
+        condition: service_healthy
+      postgres_db:
+        condition: service_healthy
+    expose:
+      - 8080
+    networks:
+      - general
+      - ott
+    env_file:
+      - ./envs/common.env
+      - ./envs/ott.env
+  postgres_db:
+    image: postgres:13-alpine
+    container_name: ott-db
+    restart: unless-stopped
+    user: 1000:1000
+    expose:
+      - 5432
+    networks:
+      - ott
+    volumes:
+      - ./ott/db:/var/lib/postgresql/data
+    env_file:
+      - ./envs/common.env
+      - ./envs/ott-db.env
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${OTT_DB_NAME}", "-U", "${OTT_DB_USER}" ]
+      interval: 10s
+      timeout: 45s
+      retries: 10
+  ott-redis:
+    image: redis:alpine
+    container_name: ott-redis
+    restart: unless-stopped
+    user: 1000:1000
+    expose:
+      - 6379
+    networks:
+      - ott
+    volumes:
+      - ./ott/redis:/data
+    env_file: ./envs/common.env
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 45s
+      retries: 10
+  # OpenTogetherTube #
+  ####################
+
+
+  #############
+  #  OwnCast  #
+  owncast:
+    image: gabekangas/owncast:latest
+    container_name: owncast
+    restart: unless-stopped
+    ports:
+      - "58080:8080"
+      - "1935:1935"
+    networks:
+      - owncast
+    volumes:
+      - ./owncast:/app/data
+    env_file: ./envs/common.env
+  #  OwnCast  #
+  #############
+
+
+  ############
+  #   Plex   #
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    restart: unless-stopped
+    network_mode: host
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - ./plex/appdata:/config
+      - ./plex/transcode:/tmp
+      - /mnt/media/TV:/data/tvshows:ro
+      - /mnt/media/Movies:/data/movies:ro
+      - /mnt/media/Anime:/data/anime:ro
+      - /mnt/media/Hentai:/data/hentai:ro
+      - /mnt/media/4k-Movies:/data/movies-4k:ro
+      - /mnt/media/4k-TV:/data/4k-TV:ro
+      - ./zz_shared:/shared:ro
+    env_file:
+      - ./envs/common.env
+      - ./envs/plex.env
+  plexpy:
+    container_name: plexpy
+    image: tautulli/tautulli:beta
+    restart: unless-stopped
+    expose:
+      - 8181
+    networks:
+      - plex
+    volumes:
+      - ./plexpy/config:/config
+      - ./plex/appdata/Library/Application Support/Plex Media Server/Logs:/logs:ro
+      - ./zz_shared:/shared:ro
+    env_file: ./envs/common.env
+  overseerr:
+    container_name: overseerr
+    image: lscr.io/linuxserver/overseerr:latest
+    restart: unless-stopped
+    expose:
+      - 5055
+    networks:
+      - plex
+    volumes:
+      - ./overseerr:/config
+    env_file: ./envs/common.env
+  #   Plex   #
+  ############
+
+
+  #########
+  # rimgo #
+  rimgo:
+    image: ghcr.io/xnaas/rimgo:latest
+    container_name: rimgo
+    restart: unless-stopped
+    expose:
+      - 3000
+    networks:
+      - general
+    env_file: ./envs/rimgo.env
+  # rimgo #
+  #########
+
+
+  ###########
+  #   RSS   #
+  rss:
+    image: lscr.io/linuxserver/freshrss:1.19.2
+    container_name: rss
+    restart: unless-stopped
+    expose:
+      - 80
+    networks:
+      - general
+    volumes:
+      - ./rss:/config
+    env_file: ./envs/common.env
+  rss-bridge:
+    image: rssbridge/rss-bridge:latest
+    container_name: rss-bridge
+    restart: unless-stopped
+    expose:
+      - 80
+    networks:
+      - general
+    volumes:
+      - ./rss-bridge/whitelist.txt:/app/whitelist.txt
+      - ./rss-bridge/config.ini.php:/app/config.ini.php
+    env_file: ./envs/common.env
+  #   RSS   #
+  ###########
+
+
+  ###########
+  #  Tesla  #
+  teslamate:
+    image: teslamate/teslamate:latest
+    container_name: teslamate
+    restart: unless-stopped
+    depends_on:
+      teslamate-db:
+        condition: service_healthy
+    cap_drop:
+      - all
+    expose:
+      - 4000
+    networks:
+      - general
+      - tesla
+    env_file: ./envs/tesla.env
+  teslamate-db:
+    image: postgres:13-alpine
+    container_name: teslamate-db
+    restart: unless-stopped
+    user: 1000:1000
+    networks:
+      - tesla
+    volumes:
+      - ./teslamate/teslamate-db:/var/lib/postgresql/data
+    env_file:
+      - ./envs/common.env
+      - ./envs/tesla-db.env
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${TESLA_DB_NAME}", "-U", "${TESLA_DB_USER}" ]
+      interval: 10s
+      timeout: 45s
+      retries: 10
+  teslamate-grafana:
+    image: teslamate/grafana:latest
+    container_name: teslamate-grafana
+    restart: unless-stopped
+    depends_on:
+      teslamate-db:
+        condition: service_healthy
+    user: 1000:1000
+    expose:
+      - 3000
+    networks:
+      - general
+      - tesla
+    volumes:
+      - ./teslamate/grafana:/var/lib/grafana
+    env_file:
+      - ./envs/common.env
+      - ./envs/tesla-graf.env
+  teslamate-mqtt:
+    image: eclipse-mosquitto:1.6
+    container_name: teslamate-mqtt
+    restart: unless-stopped
+    expose:
+      - 1883
+    networks:
+      - tesla
+    volumes:
+      - ./teslamate/mosquitto-conf:/mosquitto/config
+      - ./teslamate/mosquitto-data:/mosquitto/data
+      - ./teslamate/mosquitto-log:/mosquitto/log
+    env_file: ./envs/common.env
+  #  Tesla  #
+  ###########
+
+
+  ##############
+  # youtube-dl #
+  youtubedl:
+    image: nbr23/youtube-dl-server:yt-dlp
+    container_name: youtubedl
+    restart: unless-stopped
+    expose:
+      - 8080
+    networks:
+      - general
+    volumes:
+      - ./youtube/data:/youtube-dl
+      - ./youtube/config:/app_config
+    env_file:
+      - ./envs/common.env
+      - ./envs/youtubedl.env
+  # youtube-dl #
+  ##############
+
+
+  ############
+  #   Send   #
+  send:
+    image: registry.gitlab.com/timvisee/send:latest
+    container_name: send
+    restart: unless-stopped
+    user: 1000:1000
+    depends_on:
+      send-redis:
+        condition: service_healthy
+    expose:
+      - 1234
+    networks:
+      - general
+      - send
+    volumes:
+      - ./send/uploads:/uploads
+    env_file:
+      - ./envs/common.env
+      - ./envs/send.env
+  send-redis:
+    image: redis:alpine
+    container_name: send-redis
+    restart: unless-stopped
+    user: 1000:1000
+    networks:
+      - send
+    volumes:
+      - ./send/redis:/data
+    env_file: ./envs/common.env
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 45s
+      retries: 10
+  #   Send   #
+  ############
+
+
+  #############
+  # Meme Wiki #
+  meme-wiki:
+    image: lscr.io/linuxserver/dokuwiki:latest
+    container_name: meme-wiki
+    restart: unless-stopped
+    expose:
+      - 80
+    networks:
+      - general
+    volumes:
+      - ./meme-wiki:/config
+    env_file: ./envs/common.env
+  # Meme Wiki #
+  #############
+
+
+##############
+# Networking #
+networks:
+  cf:
+    driver: bridge
+  general:
+    driver: bridge
+  irc:
+    driver: bridge
+  joplin:
+    driver: bridge
+  nitter:
+    driver: bridge
+  ott:
+    driver: bridge
+  owncast:
+    driver: bridge
+  plex:
+    driver: bridge
+  send:
+    driver: bridge
+  tesla:
+    driver: bridge
