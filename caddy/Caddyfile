@@ -229,12 +229,6 @@ https://actionsack.com {
 		root * /www/websites/actionsack.com/tmp
 		file_server browse
 	}
-	redir /webirc /webirc/
-	handle_path /webirc/* {
-		reverse_proxy ircd:8097 {
-			import proxyheaders
-		}
-	}
 }
 
 https://bib.actionsack.com {
@@ -315,8 +309,9 @@ https://srsbznz.actionsack.com {
 
 https://webchat.actionsack.com {
 	import main
-	root * /www/websites/gamja
-	file_server
+	reverse_proxy http://webchat:9000 {
+		import proxyheaders
+	}
 }
 
 https://ytdl.actionsack.com {
