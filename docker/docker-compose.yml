@@ -115,44 +115,6 @@ services:
   ############
 
 
-  ############
-  #  Joplin  #
-  joplin:
-    image: joplin/server:latest
-    container_name: joplin
-    restart: unless-stopped
-    depends_on:
-      joplin-db:
-        condition: service_healthy
-    networks:
-      - general
-      - joplin
-    expose:
-      - 22300
-    env_file:
-      - ./envs/common.env
-      - ./envs/joplin.env
-  joplin-db:
-    image: postgres:13-alpine
-    container_name: joplin-db
-    restart: unless-stopped
-    user: 1000:1000
-    networks:
-      - joplin
-    volumes:
-      - ./joplin:/var/lib/postgresql/data
-    env_file:
-      - ./envs/common.env
-      - ./envs/joplin-db.env
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "${JOPLIN_DB_NAME}", "-U", "${JOPLIN_DB_USER}" ]
-      interval: 10s
-      timeout: 45s
-      retries: 10
-  #  Joplin  #
-  ############
-
-
   ################
   # Matterbridge #
   matterbridge:
@@ -549,8 +511,6 @@ networks:
   general:
     driver: bridge
   irc:
-    driver: bridge
-  joplin:
     driver: bridge
   nitter:
     driver: bridge
