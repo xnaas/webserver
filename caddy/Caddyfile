@@ -1,4 +1,4 @@
-# caddy verion: v2.5.0
+# caddy verion: v2.5.1
 ###################
 # Global Settings #
 ###################
@@ -28,9 +28,10 @@
 		X-Content-Type-Options "nosniff"
 		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Robots-Tag "noindex"
 	}
 	log {
-		output file /data/logs/access.log {
+		output file /data/logs/error.log {
 			roll_size 100MiB
 			roll_keep 10
 			roll_keep_for 168h
@@ -43,16 +44,8 @@
 		}
 		level ERROR
 	}
-	respond /robots.txt 200 {
-		body "User-agent: *
-Disallow: /
-
-User-agent: AdsBot-Google
-Disallow: /
-
-User-agent: AdsBot-Google-Mobile
-Disallow: /"
-		close
+	handle_errors {
+		respond "{http.error.status_code} {http.error.status_text}"
 	}
 }
 (asak) {
@@ -60,18 +53,9 @@ Disallow: /"
 		{$ASAK}
 	}
 }
-(errors) {
-	handle_errors {
-		respond "{http.error.status_code} {http.error.status_text}"
-	}
-}
 
-##############
-# xnaas.info #
-##############
 https://xnaas.info {
 	import main
-	import errors
 	root * /www/websites/xnaas.info
 	file_server
 	redir /tmp /tmp/
@@ -84,145 +68,109 @@ https://xnaas.info {
 	}
 }
 
-https://home.xnaas.info {
+https://*.xnaas.info {
 	import main
-	reverse_proxy https://192.168.1.150:5001 {
-		import proxyheaders
-		transport http {
-			tls_insecure_skip_verify
+	@filedump host p.xnaas.info
+	@kb host kb.xnaas.info
+	@live host live.xnaas.info
+	@music host music.xnaas.info
+	@nas host home.xnaas.info
+	@plex host plex.xnaas.info
+	@plexpy host plexpy.xnaas.info
+	@plexrequests host request.xnaas.info
+	@rss host rss.xnaas.info
+	@tesla host tesla.xnaas.info
+	@teslagrafana host teslag.xnaas.info
+	@thelounge host irc.xnaas.info
+	@ツ host xn--bdk.xnaas.info
+	@🤔 host xn--wp9h.xnaas.info
+	@🤪 host xn--jq9h.xnaas.info
+	@🤫 host xn--kq9h.xnaas.info
+	handle @filedump {
+		root * /www/websites/p.xnaas.info
+		file_server browse
+	}
+	handle @kb {
+		root * /www/websites/kb.xnaas.info/website
+		file_server
+		uri strip_prefix /en/public # uri strip for leaving wikijs
+	}
+	handle @live {
+		reverse_proxy http://owncast:8080 {
+			import proxyheaders
 		}
 	}
-}
-
-https://irc.xnaas.info {
-	import main
-	reverse_proxy http://thelounge:9000 {
-		import proxyheaders
+	handle @music {
+		reverse_proxy http://music:4533 {
+			import proxyheaders
+		}
+	}
+	handle @nas {
+		reverse_proxy https://192.168.1.150:5001 {
+			import proxyheaders
+			transport http {
+				tls_insecure_skip_verify
+			}
+		}
+	}
+	handle @plex {
+		reverse_proxy http://192.168.1.101:32400 {
+			import proxyheaders
+		}
+	}
+	handle @plexpy {
+		reverse_proxy http://plexpy:8181 {
+			import proxyheaders
+		}
+	}
+	handle @plexrequests {
+		reverse_proxy http://overseerr:5055 {
+			import proxyheaders
+		}
+	}
+	handle @rss {
+		reverse_proxy http://rss:80 {
+			import proxyheaders
+		}
+	}
+	handle @tesla {
+		reverse_proxy http://teslamate:4000 {
+			import proxyheaders
+		}
+	}
+	handle @teslagrafana {
+		reverse_proxy http://teslamate-grafana:3000 {
+			import proxyheaders
+		}
+	}
+	handle @thelounge {
+		reverse_proxy http://thelounge:9000 {
+			import proxyheaders
+		}
+	}
+	handle @ツ {
+		root * /www/websites/ツ.xnaas.info
+		file_server
+	}
+	handle @🤔 {
+		root * /www/websites/🤔.xnaas.info
+		file_server
+	}
+	handle @🤪 {
+		root * /www/websites/🤪.xnaas.info
+		file_server
+	}
+	handle @🤫 {
+		root * /www/websites/🤫.xnaas.info
+		file_server browse
+	}
+	handle {
+		abort
 	}
 }
 
-https://kb.xnaas.info {
-	import main
-	import errors
-	root * /www/websites/kb.xnaas.info/website
-	file_server
-	uri strip_prefix /en/public # uri strip for leaving wikijs
-}
-
-https://live.xnaas.info {
-	import main
-	reverse_proxy http://owncast:8080 {
-		import proxyheaders
-	}
-}
-
-https://music.xnaas.info {
-	import main
-	reverse_proxy http://music:4533 {
-		import proxyheaders
-	}
-}
-
-https://notes.xnaas.info {
-	import main
-	reverse_proxy http://joplin:22300 {
-		import proxyheaders
-	}
-}
-
-https://p.xnaas.info {
-	import main
-	import errors
-	root * /www/websites/p.xnaas.info
-	file_server browse
-}
-
-https://plex.xnaas.info {
-	import main
-	reverse_proxy http://192.168.1.101:32400 {
-		import proxyheaders
-	}
-}
-
-https://plexpy.xnaas.info {
-	import main
-	reverse_proxy http://plexpy:8181 {
-		import proxyheaders
-	}
-}
-
-https://request.xnaas.info {
-	import main
-	reverse_proxy http://overseerr:5055 {
-		import proxyheaders
-	}
-}
-
-https://rss.xnaas.info {
-	import main
-	reverse_proxy http://rss:80 {
-		import proxyheaders
-	}
-}
-
-https://tesla.xnaas.info {
-	import main
-	reverse_proxy http://teslamate:4000 {
-		import proxyheaders
-	}
-}
-
-https://teslag.xnaas.info {
-	import main
-	reverse_proxy http://teslamate-grafana:3000 {
-		import proxyheaders
-	}
-}
-
-https://www.xnaas.info,
-https://www.actionsack.com {
-	import main
-	redir https://dropwww.com/why 301
-}
-
-# https://ツ.xnaas.info
-https://xn--bdk.xnaas.info {
-	import main
-	import errors
-	root * /www/websites/ツ.xnaas.info
-	file_server
-}
-
-# https://🤔.xnaas.info
-https://xn--wp9h.xnaas.info {
-	import main
-	import errors
-	root * /www/websites/🤔.xnaas.info
-	file_server
-}
-
-# https://🤪.xnaas.info
-https://xn--jq9h.xnaas.info {
-	import main
-	import errors
-	root * /www/websites/🤪.xnaas.info
-	file_server
-}
-
-# https://🤫.xnaas.info
-https://xn--kq9h.xnaas.info {
-	import main
-	import errors
-	root * /www/websites/🤫.xnaas.info
-	file_server browse
-}
-
-##################
-# actionsack.com #
-##################
 https://actionsack.com {
 	import main
-	import errors
 	root * /www/websites/actionsack.com/website
 	file_server
 	redir /tmp /tmp/
@@ -232,85 +180,75 @@ https://actionsack.com {
 	}
 }
 
-https://bib.actionsack.com {
-	import main
-	reverse_proxy http://bibliogram:10407 {
-		import proxyheaders
-	}
-}
-
-# This one exists just to get certs
-# for IRC and Mumble, basically.
+# This one exists just to get certs for IRC and Mumble.
 https://chat.actionsack.com {
 	import main
 	respond "OK"
 }
 
-# todo: rate-limiting /Games
-https://dl.actionsack.com {
+https://*.actionsack.com {
 	import main
-	import errors
-	root * /www/download
-	redir /favicon.ico https://actionsack.com/favicon.ico
-	file_server browse {
-		hide .*
+	@bibliogram host bib.actionsack.com
+	@filedump host p.actionsack.com
+	@nitter host nitter.actionsack.com
+	@ott host ott.actionsack.com
+	@public host dl.actionsack.com
+	@rimgo host i.actionsack.com
+	@rss host rss.actionsack.com
+	@send host send.actionsack.com
+	@webchat host webchat.actionsack.com
+	@ytdl host ytdl.actionsack.com
+	handle @bibliogram {
+		reverse_proxy http://bibliogram:10407 {
+			import proxyheaders
+		}
 	}
-}
-
-https://i.actionsack.com {
-	import main
-	reverse_proxy http://rimgo:3000 {
-		import proxyheaders
+	handle @filedump {
+		root * /www/websites/p.actionsack.com
+		redir /favicon.ico https://actionsack.com/favicon.ico
+		file_server browse
 	}
-}
-
-https://nitter.actionsack.com {
-	import main
-	reverse_proxy http://nitter:8080 {
-		import proxyheaders
+	handle @nitter {
+		reverse_proxy http://nitter:8080 {
+			import proxyheaders
+		}
 	}
-}
-
-https://ott.actionsack.com {
-	import main
-	reverse_proxy http://ott:8080 {
-		import proxyheaders
+	handle @ott {
+		reverse_proxy http://ott:8080 {
+			import proxyheaders
+		}
 	}
-}
-
-https://p.actionsack.com {
-	import main
-	import errors
-	root * /www/websites/p.actionsack.com
-	redir /favicon.ico https://actionsack.com/favicon.ico
-	file_server browse
-}
-
-https://rss.actionsack.com {
-	import main
-	import asak
-	reverse_proxy http://rss-bridge:80 {
-		import proxyheaders
+	handle @public {
+		root * /www/download
+		redir /favicon.ico https://actionsack.com/favicon.ico
+		file_server browse {
+			hide .*
+		}
 	}
-}
-
-https://send.actionsack.com {
-	import main
-	reverse_proxy http://send:1234 {
-		import proxyheaders
+	handle @rimgo {
+		reverse_proxy http://rimgo:3000 {
+			import proxyheaders
+		}
 	}
-}
-
-https://webchat.actionsack.com {
-	import main
-	reverse_proxy http://webchat:9000 {
-		import proxyheaders
+	handle @rss {
+		import asak
+		reverse_proxy http://rss-bridge:80 {
+			import proxyheaders
+		}
 	}
-}
-
-https://ytdl.actionsack.com {
-	import main
-	reverse_proxy http://youtubedl:8080 {
-		import proxyheaders
+	handle @send {
+		reverse_proxy http://send:1234 {
+			import proxyheaders
+		}
+	}
+	handle @webchat {
+		reverse_proxy http://webchat:9000 {
+			import proxyheaders
+		}
+	}
+	handle @ytdl {
+		reverse_proxy http://youtubedl:8080 {
+			import proxyheaders
+		}
 	}
 }
