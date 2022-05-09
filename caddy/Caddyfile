@@ -103,6 +103,7 @@ https://irc.xnaas.info {
 
 https://kb.xnaas.info {
 	import main
+	import errors
 	root * /www/websites/kb.xnaas.info/website
 	file_server
 	uri strip_prefix /en/public # uri strip for leaving wikijs
