@@ -33,7 +33,7 @@ services:
   ###############
   # cloudflared #
   cloudflared:
-    image: cloudflare/cloudflared:2022.4.1
+    image: cloudflare/cloudflared:2022.5.0
     container_name: cloudflared
     restart: unless-stopped
     user: 1000:1000
@@ -506,10 +506,9 @@ services:
   ############
   #   Send   #
   send:
-    image: registry.gitlab.com/timvisee/send:latest
+    image: ghcr.io/xnaas/send:latest
     container_name: send
     restart: unless-stopped
-    user: 1000:1000
     depends_on:
       send-redis:
         condition: service_healthy
@@ -540,23 +539,6 @@ services:
       retries: 10
   #   Send   #
   ############
-
-
-  #############
-  # Meme Wiki #
-  meme-wiki:
-    image: lscr.io/linuxserver/dokuwiki:latest
-    container_name: meme-wiki
-    restart: unless-stopped
-    expose:
-      - 80
-    networks:
-      - general
-    volumes:
-      - ./meme-wiki:/config
-    env_file: ./envs/common.env
-  # Meme Wiki #
-  #############
 
 
 ##############

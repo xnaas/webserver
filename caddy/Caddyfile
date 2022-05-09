@@ -300,13 +300,6 @@ https://send.actionsack.com {
 	}
 }
 
-https://srsbznz.actionsack.com {
-	import main
-	reverse_proxy http://meme-wiki:80 {
-		import proxyheaders
-	}
-}
-
 https://webchat.actionsack.com {
 	import main
 	reverse_proxy http://webchat:9000 {
