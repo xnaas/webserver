@@ -1,16 +1,14 @@
-# caddy/cloudflared
-These are some files related to my setup for caddy and cloudflared.
+# webserver
+Some of the details on my webserver.
 
-Additional details:
-
-* Uses [xnaas/docker-caddy](https://github.com/xnaas/docker-caddy/pkgs/container/caddy)
+* Uses [xnaas/caddy](https://ghcr.io/xnaas/caddy)
 * Uses [cloudflared](https://github.com/cloudflare/cloudflared)
 
-See [xnaas/docker-compose.yml](https://github.com/xnaas/docker-compose.yml/) for more
-info on overall setup.
+## [caddy](https://github.com/xnaas/webserver/tree/main/caddy)
+Click above for detailed information on the `caddy` part of my setup.
 
-## [caddy](https://github.com/xnaas/nginx/blob/master/caddy/)
-Click above for detailed information on the caddy part of my setup.
+## [cloudflared](https://github.com/xnaas/webserver/tree/main/cloudflared)
+Click above for detailed information on the `cloudflared` part of my setup.
 
-## [cloudflared](https://github.com/xnaas/nginx/blob/master/cloudflared/)
-Click above for detailed information on the cloudflared part of my setup.
+## [docker](https://github.com/xnaas/webserver/tree/main/docker)
+Click above for detailed information on the `docker` part of my setup.
