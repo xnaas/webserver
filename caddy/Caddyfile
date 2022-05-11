@@ -71,7 +71,9 @@ https://xnaas.info {
 
 https://*.xnaas.info {
 	import main
-	abort @tor
+	handle @tor {
+		abort
+	}
 	@filedump host p.xnaas.info
 	@kb host kb.xnaas.info
 	@live host live.xnaas.info
