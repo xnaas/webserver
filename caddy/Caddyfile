@@ -42,6 +42,7 @@
 			fields {
 				request>tls delete
 				resp_headers delete
+				user_id delete
 			}
 		}
 		level ERROR
