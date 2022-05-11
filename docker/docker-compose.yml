@@ -13,11 +13,8 @@ services:
       - cf
       - general
       - irc
-      - owncast
-      - plex
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/mime.types:/etc/mime.types:ro
       - ./caddy/data:/data
       - ./caddy/config:/config
       - /mnt/media/websites:/www/websites:ro
@@ -33,7 +30,7 @@ services:
   ###############
   # cloudflared #
   cloudflared:
-    image: cloudflare/cloudflared:2022.5.0
+    image: cloudflare/cloudflared:2022.5.1
     container_name: cloudflared
     restart: unless-stopped
     user: 1000:1000
@@ -274,7 +271,7 @@ services:
       - "58080:8080"
       - "1935:1935"
     networks:
-      - owncast
+      - general
     volumes:
       - ./owncast:/app/data
     env_file: ./envs/common.env
@@ -311,7 +308,7 @@ services:
     expose:
       - 8181
     networks:
-      - plex
+      - general
     volumes:
       - ./plexpy/config:/config
       - ./plex/appdata/Library/Application Support/Plex Media Server/Logs:/logs:ro
@@ -324,7 +321,7 @@ services:
     expose:
       - 5055
     networks:
-      - plex
+      - general
     volumes:
       - ./overseerr:/config
     env_file: ./envs/common.env
@@ -503,6 +500,26 @@ services:
   ############
 
 
+  ############
+  # unlisted #
+  unlisted:
+    image: ${UNLISTEDI}
+    container_name: ${UNLISTED}
+    restart: unless-stopped
+    user: 1000:1000
+    expose:
+      - 8080
+    networks:
+      - general
+    volumes:
+      - ./${UNLISTED}:/data
+    env_file:
+      - ./envs/common.env
+      - ./envs/${UNLISTED}.env
+  # unlisted #
+  ############
+
+
 ##############
 # Networking #
 networks:
@@ -515,10 +532,6 @@ networks:
   nitter:
     driver: bridge
   ott:
-    driver: bridge
-  owncast:
-    driver: bridge
-  plex:
     driver: bridge
   send:
     driver: bridge
