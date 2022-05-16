@@ -210,7 +210,7 @@ https://*.actionsack.com {
 	import main
 	@bibliogram host bib.actionsack.com
 	@filedump host p.actionsack.com
-	@nitter host nitter.actionsack.com
+	@nitter host n.actionsack.com
 	@ott host ott.actionsack.com
 	@public host dl.actionsack.com
 	@rimgo host i.actionsack.com
