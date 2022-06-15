@@ -30,7 +30,7 @@ services:
   ###############
   # cloudflared #
   cloudflared:
-    image: cloudflare/cloudflared:2022.5.1
+    image: cloudflare/cloudflared:2022.6.1
     container_name: cloudflared
     restart: unless-stopped
     user: 1000:1000
@@ -98,7 +98,7 @@ services:
       - ./webchat:/var/opt/thelounge
     env_file: ./envs/common.env
   ircd:
-    image: ghcr.io/ergochat/ergo:v2.9.1
+    image: ghcr.io/ergochat/ergo:v2.10.0
     container_name: ircd
     restart: unless-stopped
     ports:
@@ -358,7 +358,7 @@ services:
       - ./rss:/config
     env_file: ./envs/common.env
   rss-bridge:
-    image: rssbridge/rss-bridge:latest
+    image: ghcr.io/rss-bridge/rss-bridge:stable
     container_name: rss-bridge
     restart: unless-stopped
     expose:
