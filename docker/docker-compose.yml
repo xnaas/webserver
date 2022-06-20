@@ -30,7 +30,7 @@ services:
   ###############
   # cloudflared #
   cloudflared:
-    image: cloudflare/cloudflared:2022.6.1
+    image: cloudflare/cloudflared:2022.6.3
     container_name: cloudflared
     restart: unless-stopped
     user: 1000:1000
